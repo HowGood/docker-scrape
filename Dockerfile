@@ -1,22 +1,30 @@
-FROM gliderlabs/alpine:latest
+FROM debian:jessie
 
-RUN apk --no-cache add \
-      bash \
-      openssl \
+RUN echo "deb http://httpredir.debian.org/debian jessie-backports main contrib non-free" >> /etc/apt/sources.list \
+  && apt-get update \
+  && apt-get install -y \
+      build-essential \
+      curl \
       python \
       python-dev \
-      py-pip \
-      iptables \
-      build-base \
-  && pip install --no-cache-dir --upgrade pip
+      python-pip \
+      libffi-dev \
+      libssl-dev \
+      libxml2-dev \
+      libxslt-dev \
+      tor \
+      privoxy \
+  && pip install --upgrade pip \
+  && rm -rf /var/lib/apt/lists/* \
+  && apt-get clean -y \
+  && apt-get autoremove -y
 
-RUN echo '@testing http://nl.alpinelinux.org/alpine/edge/testing' >> /etc/apk/repositories \
-  && apk --no-cache add \
-        tor@testing \
-        torsocks@testing
+COPY privoxy.conf /etc/privoxy/config
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 
-COPY torrc /etc/tor/torrc
-COPY bootstrap /usr/local/bin/bootstrap
-RUN chmod +x /usr/local/bin/bootstrap
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT ["/usr/local/bin/bootstrap"]
+ENV http_proxy http://127.0.0.1:8118
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+CMD /bin/bash
