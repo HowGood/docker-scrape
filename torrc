@@ -1,6 +1,0 @@
-## Tor Configuration File
-## /etc/tor/torrc
-
-RunAsDaemon 1
-SocksPort 127.0.0.1:9050
-ExitNodes US

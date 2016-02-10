@@ -1,4 +1,0 @@
-#!/bin/bash
-
-tor -f /etc/tor/torrc &
-exec torsocks "$@"
